@@ -211,6 +211,7 @@ function guess(letter = null) {
 function endGame(win) {
     gameOverTitle.textContent = win ? "Congratulations!" : "Game Over!";
     revealWordText.textContent = word;
+    guessLetterInput.blur();
 
     gameScreen.classList.remove('open');
     gameOverScreen.classList.add('open');
