@@ -311,7 +311,6 @@ button {
 }
 
 .screen-disclaimer {
-    margin-top: 1rem;
     font-size: .75rem;
 
     & p {
