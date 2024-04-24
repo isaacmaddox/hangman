@@ -1,3 +1,8 @@
+@font-face {
+    font-family: Geist;
+    src: url(GeistVF.ttf);
+}
+
 :root {
     --background: #fff;
     --background-inverse: #111;
@@ -36,12 +41,12 @@
 
         --control-border-color: rgba(255, 255, 255, .2);
         --control-border-hover-color: rgba(255, 255, 255, .3);
-        --control-outline-color: rgba(227, 218, 255, .5);
+        --control-outline-color: rgba(227, 218, 255, .75);
     }
 }
 
 * {
-    font-family: "Geist Variable", system-ui;
+    font-family: "Geist", system-ui;
     margin: 0;
     box-sizing: border-box;
 }
@@ -168,7 +173,7 @@ button {
     border: 1px solid var(--control-border-color);
     cursor: pointer;
     border-radius: .375em;
-    transition: background 150ms ease, border 150ms ease, outline 150ms ease, color 150ms ease;
+    transition: background 150ms ease, border 150ms ease, outline 150ms ease, color 150ms ease, opacity 200ms ease;
     color: var(--text-color);
     outline: var(--outline-width) solid transparent;
     outline-offset: -1px;
@@ -321,6 +326,10 @@ button {
 
 .tooltip {
     color: var(--text-tooltip-color);
+
+    &+input {
+        margin-top: .5em;
+    }
 }
 
 .invalid-input {
@@ -336,7 +345,7 @@ button {
         font-size: 2.5rem;
     }
 
-    .control-group {
+    .control-group:not(.no-break) {
         grid-template-columns: 1fr;
     }
 

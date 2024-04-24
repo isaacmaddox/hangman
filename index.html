@@ -12,9 +12,10 @@
       <h1>Hangman</h1>
       <p class="text-lg">The ultimate word guessing game for all ages!</p>
       <p class="tooltip">Player 1, enter the word for Player 2 to guess:</p>
-      <div class="control-group">
-        <input type="text" id="set-word" maxlength="10" />
+      <input type="text" id="set-word" maxlength="10" data-target="play-multiplayer" />
+      <div class="control-group no-break">
         <button type="button" class="primary" onclick="beginGame()" id="play-multiplayer">Play Game</button>
+        <button type="button" onclick="shareWord()" id="share-word">Share Word</button>
       </div>
       <p class="error-text" id="start-error"></p>
       <div class="divider">OR</div>
@@ -22,7 +23,7 @@
       <div class="screen-disclaimer">
         <div class="divider left">Notes</div>
         <p>By <a href="https://linkedin.com/in/isaac-maddox" target="_blank">Isaac Maddox</a></p>
-        <p>Check out the <a href="#">GitHub repo</a></p>
+        <p>Check out the <a href="https://github.com/isaacmaddox/hangman/" target="_blank">GitHub repo</a></p>
         <p>Random word generation powered by <a href="https://random-word-api.herokuapp.com/home" target="_blank">Random Word API</a></p>
       </div>
     </div>
@@ -31,7 +32,7 @@
       <p class="text-lg" id="mistakes-remaining-container">Mistakes remaining: <span id="mistakes-remaining">6</span></p>
       <p class="tooltip">Guess a letter or the entire word</p>
       <div class="control-group" id="game-controls">
-        <input type="text" id="guess-letter" placeholder="Enter guess here" />
+        <input type="text" id="guess-letter" placeholder="Enter guess here" data-target="guess-button" />
         <button type="button" onclick="guess()" id="guess-button" class="primary">Submit Guess</button>
       </div>
       <p class="error-text" id="game-error"></p>

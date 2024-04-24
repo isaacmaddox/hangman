@@ -1,3 +1,6 @@
+const alpha = "abcdefghijklmnopqrstuvwxyz";
+const MAX_WORD_LENGTH = 15;
+const RANDOM_URL = `https://random-word-api.herokuapp.com/word?lang=en&length=${Math.floor(Math.random() * 5) + (MAX_WORD_LENGTH - 5)}`;
 let word;
 let wordArray;
 let guessedLetters = [];
@@ -15,7 +18,7 @@ let setupErrorText;
 let gameErrorText;
 let revealWordText;
 let randomWord;
-let mpButton, spButton, guessButton;
+let mpButton, spButton, guessButton, shareWordButton;
 let game_over = false;
 
 document.addEventListener("DOMContentLoaded", () => {
@@ -34,21 +37,30 @@ document.addEventListener("DOMContentLoaded", () => {
     mpButton = document.getElementById("play-multiplayer");
     spButton = document.getElementById("play-singleplayer");
     guessButton = document.getElementById("guess-button");
+    shareWordButton = document.getElementById("share-word");
+
+    setWordInput.setAttribute('maxlength', MAX_WORD_LENGTH);
 
     [setWordInput, guessLetterInput].forEach(field => {
         field.addEventListener("keydown", (e) => {
             if (e.key === "Enter") {
-                field.nextElementSibling.click();
+                document.getElementById(field.dataset.target)?.click();
             }
         })
     })
+
+    if (location.search.includes("word")) {
+        const sharedWord = location.search.substring(1).split("&").find(w => w.startsWith("word")).split("=")[1];
+        word = unshuffleWord(sharedWord);
+        return beginGame(true);
+    }
 
     setWordInput.addEventListener('keydown', (e) => {
         clearError("start");
 
         if (e.code === `Key${e.key.toUpperCase()}` && setWordInput.value.length === parseInt(setWordInput.getAttribute("maxlength"))) {
             setWordInput.classList.add("invalid-input");
-            error("Word must be 10 characters at most", "start");
+            error(`Word must be ${MAX_WORD_LENGTH} characters at most`, "start");
 
             setTimeout(() => {
                 setWordInput.classList.remove("invalid-input");
@@ -57,14 +69,16 @@ document.addEventListener("DOMContentLoaded", () => {
     })
 
     setWordInput.addEventListener('keyup', (e) => {
-        mpButton.disabled = setWordInput.value.length > 0 && (setWordInput.value.length < 3 || setWordInput.value.length > 10);
+        let dis = setWordInput.value.length > 0 && (setWordInput.value.length < 3 || setWordInput.value.length > MAX_WORD_LENGTH);
+        mpButton.disabled = dis;
+        shareWordButton.disabled = dis;
     })
 
     guessLetterInput.addEventListener('keyup', (e) => {
-        guessButton.disabled = guessLetterInput.value === 0;
+        guessButton.disabled = guessLetterInput.value === "";
     })
 
-    fetch(`https://random-word-api.herokuapp.com/word?lang=en&length=${Math.floor(Math.random() * 5) + 5}`)
+    fetch(RANDOM_URL)
         .then(r => r.json())
         .then(data => {
             randomWord = data[0];
@@ -72,6 +86,33 @@ document.addEventListener("DOMContentLoaded", () => {
             startingScreen.classList.add('open');
         })
 });
+
+function shuffleWord(word) {
+    const original = word.toLowerCase();
+    const off = Math.floor(Math.random() * 100);
+    let newString = `${off}-`;
+
+    for (let i = 0; i < original.length; ++i) {
+        let pos = alpha.indexOf(original.charAt(i));
+        let newPos = (pos + off);
+        newString += newPos + (i < original.length - 1 ? "-" : "");
+    }
+
+    return newString;
+}
+
+function unshuffleWord(word) {
+    const data = word.split("-");
+    off = parseInt(data[0]);
+    let newString = "";
+
+    for (let i = 1; i < data.length; ++i) {
+        let pos = parseInt(data[i]) - off;
+        newString += alpha.charAt(pos);
+    }
+
+    return newString;
+}
 
 function error(msg, which = "game") {
     if (which === "start") {
@@ -89,28 +130,34 @@ function clearError(which = "game") {
     }
 }
 
-function beginGame() {
-    let tmpWord = setWordInput.value;
+function beginGame(wordDefined = false) {
+    if (!wordDefined) {
+        let tmpWord = word ?? setWordInput.value;
 
-    if (tmpWord.length === 0) tmpWord = randomWord;
+        if (tmpWord.length === 0) tmpWord = randomWord;
 
-    if (tmpWord.length < 3 || tmpWord.length > 10) {
-        error("Word must be between 3 and 10 characters.", "start");
-        setWordInput.focus();
-        return;
+        if (tmpWord.length < 3 || tmpWord.length > MAX_WORD_LENGTH) {
+            error(`Word must be between 3 and ${MAX_WORD_LENGTH} characters.`, "start");
+            setWordInput.focus();
+            return;
+        }
+
+        word = tmpWord.toLowerCase();
+        clearError("start");
+        initGame();
+    } else {
+        clearError("start");
+        initGame();
     }
-
-    word = tmpWord.toLowerCase();
-    clearError("start");
-    initGame();
 }
 
 function beginSingleplayerGame() {
     mpButton.disabled = true;
     spButton.disabled = true;
     spButton.textContent = "Thinking of a word...";
+    shareWordButton.disabled = true;
 
-    fetch(`https://random-word-api.herokuapp.com/word?lang=en&length=${Math.floor(Math.random() * 5) + 5}`)
+    fetch(RANDOM_URL)
         .then(r => r.json())
         .then(data => {
             word = data[0];
@@ -125,6 +172,16 @@ function initGame() {
     gameScreen?.classList.add("open");
 
     updateDisplay();
+}
+
+function shareWord() {
+    word = setWordInput.value == "" ? randomWord : setWordInput.value;
+    const shareURL = `https://hangman-im.netlify.app?word=${shuffleWord(word)}`;
+
+    navigator.share({
+        url: shareURL,
+        text: "Play Hangman!",
+    });
 }
 
 function updateDisplay(correctGuess = false) {
@@ -222,6 +279,6 @@ function reloadPage() {
     gameOverScreen.classList.remove("open");
 
     setTimeout(() => {
-        location.reload();
+        window.location = location.origin;
     }, 500);
 }
