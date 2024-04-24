@@ -192,7 +192,6 @@ function initGame() {
 
 function shareWord() {
     word = setWordInput.value == "" ? randomWord : setWordInput.value;
-    const shareURL = `https://hangman-im.netlify.app?word=${shuffleWord(word)}`;
 
     openShareDrawer();
 }
