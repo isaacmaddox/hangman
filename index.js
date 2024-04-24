@@ -203,7 +203,6 @@ function openShareDrawer() {
     shareDrawer.classList.add("open");
     setTimeout(() => {
         document.body.addEventListener('click', closeShareDrawer);
-        shareNameInput.focus();
     }, 1);
 
     shareButton.addEventListener('click', () => {
