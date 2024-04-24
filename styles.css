@@ -36,6 +36,7 @@
 
         --control-border-color: rgba(255, 255, 255, .2);
         --control-border-hover-color: rgba(255, 255, 255, .3);
+        --control-outline-color: rgba(227, 218, 255, .5);
     }
 }
 
