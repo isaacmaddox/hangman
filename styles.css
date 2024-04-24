@@ -121,6 +121,10 @@ p {
 a {
     color: var(--theme-color);
     text-underline-offset: 3px;
+
+    &:hover {
+        text-decoration: none;
+    }
 }
 
 input {
@@ -277,6 +281,7 @@ button {
 
 #reveal-word {
     color: var(--heading-color);
+    font-weight: 800;
 }
 
 #mistakes-remaining {
@@ -285,8 +290,9 @@ button {
 }
 
 #word-display {
+    --font-size: 48px;
     letter-spacing: 0.25em;
-    font-size: 3rem;
+    font-size: var(--font-size);
     color: var(--heading-color);
 }
 
@@ -342,7 +348,7 @@ button {
 
 @media (width < 600px) {
     #word-display {
-        font-size: 1.75rem;
+        --font-size: 32px;
         white-space: break-spaces;
     }
 

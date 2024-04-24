@@ -58,7 +58,7 @@ document.addEventListener("DOMContentLoaded", () => {
     setWordInput.addEventListener('keydown', (e) => {
         clearError("start");
 
-        if (e.code === `Key${e.key.toUpperCase()}` && setWordInput.value.length === parseInt(setWordInput.getAttribute("maxlength"))) {
+        if (e.code === `Key${e.key.toUpperCase()}` && setWordInput.value.length === parseInt(setWordInput.getAttribute("maxlength")) && !e.ctrlKey) {
             setWordInput.classList.add("invalid-input");
             error(`Word must be ${MAX_WORD_LENGTH} characters at most`, "start");
 
@@ -93,9 +93,13 @@ function shuffleWord(word) {
     let newString = `${off}-`;
 
     for (let i = 0; i < original.length; ++i) {
-        let pos = alpha.indexOf(original.charAt(i));
-        let newPos = (pos + off);
-        newString += newPos + (i < original.length - 1 ? "-" : "");
+        if (original.charAt(i) === " ") {
+            newString += "_" + (i < original.length - 1 ? "-" : "");
+        } else {
+            let pos = alpha.indexOf(original.charAt(i));
+            let newPos = (pos + off);
+            newString += newPos + (i < original.length - 1 ? "-" : "");
+        }
     }
 
     return newString;
@@ -107,8 +111,12 @@ function unshuffleWord(word) {
     let newString = "";
 
     for (let i = 1; i < data.length; ++i) {
-        let pos = parseInt(data[i]) - off;
-        newString += alpha.charAt(pos);
+        if (data[i] === "_") {
+            newString += " ";
+        } else {
+            let pos = parseInt(data[i]) - off;
+            newString += alpha.charAt(pos);
+        }
     }
 
     return newString;
@@ -201,6 +209,8 @@ function updateDisplay(correctGuess = false) {
             letter.classList.add("incorrect");
         }
     }
+
+    fitWordToScreen();
 }
 
 function guess(letter = null) {
@@ -281,4 +291,15 @@ function reloadPage() {
     setTimeout(() => {
         window.location = location.origin;
     }, 500);
+}
+
+function fitWordToScreen() {
+    let iters = 0;
+    const wordDisplayWidth = wordDisplayText.getBoundingClientRect().width;
+    let currentFS = parseInt(getComputedStyle(wordDisplayText).getPropertyValue("--font-size"));
+
+    while (wordDisplayText.scrollWidth > wordDisplayWidth) {
+        --currentFS;
+        wordDisplayText.style.setProperty("--font-size", `${currentFS}px`);
+    }
 }
