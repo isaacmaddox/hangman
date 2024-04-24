@@ -8,7 +8,17 @@
     <title>Hangman</title>
   </head>
   <body>
-    <div id="starting-screen" class="">
+    <div id="share-drawer" class="drawer">
+      <div class="drawer-heading"></div>
+      <h2 class="text-heading" id="share-word-heading">Atrocious</h2>
+      <p>You are sharing this word</p>
+      <div class="divider left">Details</div>
+      <div class="control-group one-col">
+        <input type="text" id="sharer-name" placeholder="Your Name (optional)" />
+        <button type="button" class="primary" id="share-button">Share</button>
+      </div>
+    </div>
+    <div id="starting-screen" class="screen">
       <h1>Hangman</h1>
       <p class="text-lg">The ultimate word guessing game for all ages!</p>
       <p class="tooltip">Player 1, enter the word for Player 2 to guess:</p>
@@ -27,11 +37,11 @@
         <p>Random word generation powered by <a href="https://random-word-api.herokuapp.com/home" target="_blank">Random Word API</a></p>
       </div>
     </div>
-    <div id="game-screen">
+    <div id="game-screen" class="screen">
       <h2 id="word-display"></h2>
       <p class="text-lg" id="mistakes-remaining-container">Mistakes remaining: <span id="mistakes-remaining">6</span></p>
       <p class="tooltip">Guess a letter or the entire word</p>
-      <div class="control-group" id="game-controls">
+      <div class="control-group one-col" id="game-controls">
         <input type="text" id="guess-letter" placeholder="Enter guess here" data-target="guess-button" />
         <button type="button" onclick="guess()" id="guess-button" class="primary">Submit Guess</button>
       </div>
@@ -65,7 +75,7 @@
         <span id="z">Z</span>
       </p>
     </div>
-    <div id="game-over-screen">
+    <div id="game-over-screen" class="screen">
       <h2 id="game-over-title" class="text-heading">Game over!</h2>
       <p class="text-lg" id="reveal-word-container">The word was <span id="reveal-word">#####</span></p>
       <p class="tooltip">Try again to see if you win</p>

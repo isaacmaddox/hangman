@@ -19,6 +19,10 @@ let gameErrorText;
 let revealWordText;
 let randomWord;
 let mpButton, spButton, guessButton, shareWordButton;
+let shareDrawer;
+let shareWordHeading;
+let shareNameInput;
+let shareButton;
 let game_over = false;
 
 document.addEventListener("DOMContentLoaded", () => {
@@ -38,6 +42,10 @@ document.addEventListener("DOMContentLoaded", () => {
     spButton = document.getElementById("play-singleplayer");
     guessButton = document.getElementById("guess-button");
     shareWordButton = document.getElementById("share-word");
+    shareDrawer = document.getElementById("share-drawer");
+    shareWordHeading = document.getElementById("share-word-heading");
+    shareNameInput = document.getElementById("sharer-name");
+    shareButton = document.getElementById("share-button");
 
     setWordInput.setAttribute('maxlength', MAX_WORD_LENGTH);
 
@@ -186,10 +194,42 @@ function shareWord() {
     word = setWordInput.value == "" ? randomWord : setWordInput.value;
     const shareURL = `https://hangman-im.netlify.app?word=${shuffleWord(word)}`;
 
-    navigator.share({
-        url: shareURL,
-        text: "Play Hangman!",
-    });
+    openShareDrawer();
+}
+
+function openShareDrawer() {
+    const shareWord = setWordInput.value === "" ? randomWord : setWordInput.value;
+    shareWordHeading.textContent = shareWord;
+    shareDrawer.classList.add("open");
+    setTimeout(() => {
+        document.body.addEventListener('click', closeShareDrawer);
+        shareNameInput.focus();
+    }, 1);
+
+    shareButton.addEventListener('click', () => {
+        openBrowserShare({
+            url: `${location.origin}?word=${shuffleWord(shareWord)}`,
+            text: `Hangman challenge${shareNameInput.value === "" ? '' : ` from ${shareNameInput.value}`}`
+        })
+    })
+}
+
+function closeShareDrawer(e = null) {
+    if (e) {
+        e.stopPropagation();
+
+        if (e.target.closest("#share-drawer")) {
+            return;
+        }
+    }
+
+    shareDrawer.classList.remove("open");
+    document.body.removeEventListener('click', closeShareDrawer);
+}
+
+function openBrowserShare(props) {
+    navigator.share(props);
+    closeShareDrawer();
 }
 
 function updateDisplay(correctGuess = false) {
