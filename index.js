@@ -131,7 +131,7 @@ function unshuffleWord(word) {
     let newString = "";
 
     for (let i = 1; i < data.length; ++i) {
-        if (!(/[0-9]{2,3}/.test(data[i]))) {
+        if (!(/[0-9]{1,3}/.test(data[i]))) {
             newString += data[i];
         } else {
             let pos = parseInt(data[i]) - off;
@@ -206,13 +206,13 @@ function initGame() {
 
 function shareResults() {
     openBrowserShare({
-        url: `${location.origin}?word=${encodeURIComponent(shuffleWord(shareWord))}`,
+        url: `${location.origin}?word=${encodeURIComponent(shuffleWord(word))}`,
         text: `Hangman challenge. Completed with ${6 - mistakes_remaining} mistakes`
-    })
+    });
 }
 
-function openShareDrawer() {
-    const shareWord = setWordInput.value === "" ? randomWord : setWordInput.value;
+function openShareDrawer(finished = false) {
+    const shareWord = finished ? word : (setWordInput.value === "" ? randomWord : setWordInput.value);
     shareWordHeading.textContent = shareWord;
 
     shareButton.addEventListener('click', () => {
@@ -266,7 +266,7 @@ function closeAllDrawers(e = null) {
 
 function openBrowserShare(props) {
     navigator.share(props);
-    closeShareDrawer();
+    closeAllDrawers();
 }
 
 function updateDisplay(correctGuess = false) {
