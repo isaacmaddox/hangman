@@ -57,12 +57,6 @@ document.addEventListener("DOMContentLoaded", () => {
         })
     })
 
-    if (location.search.includes("word")) {
-        const sharedWord = location.search.substring(1).split("&").find(w => w.startsWith("word")).split("=")[1];
-        word = unshuffleWord(sharedWord);
-        return beginGame(true);
-    }
-
     setWordInput.addEventListener('keydown', (e) => {
         clearError("start");
 
@@ -86,6 +80,14 @@ document.addEventListener("DOMContentLoaded", () => {
         guessButton.disabled = guessLetterInput.value === "";
     })
 
+    if (location.search.includes("word")) {
+        const sharedWord = unshuffleWord(decodeURIComponent(getQueryValue("word")));
+        startingScreen.classList.add('open');
+
+        word = sharedWord;
+        return beginGame(true);
+    }
+
     fetch(RANDOM_URL)
         .then(r => r.json())
         .then(data => {
@@ -94,6 +96,10 @@ document.addEventListener("DOMContentLoaded", () => {
             startingScreen.classList.add('open');
         })
 });
+
+function getQueryValue(param) {
+    return location.search.substring(1)?.split("&").find(w => w.startsWith(param))?.split("=")[1] ?? null;
+}
 
 function shuffleWord(word) {
     const original = word.toLowerCase();
@@ -147,6 +153,8 @@ function clearError(which = "game") {
 }
 
 function beginGame(wordDefined = false) {
+    closeAllDrawers();
+
     if (!wordDefined) {
         let tmpWord = word ?? setWordInput.value;
 
@@ -199,30 +207,43 @@ function shareWord() {
 function openShareDrawer() {
     const shareWord = setWordInput.value === "" ? randomWord : setWordInput.value;
     shareWordHeading.textContent = shareWord;
-    shareDrawer.classList.add("open");
-    setTimeout(() => {
-        document.body.addEventListener('click', closeShareDrawer);
-    }, 1);
 
     shareButton.addEventListener('click', () => {
+        const providedName = shareNameInput.value.trim() !== "";
         openBrowserShare({
-            url: `${location.origin}?word=${shuffleWord(shareWord)}`,
-            text: `Hangman challenge${shareNameInput.value === "" ? '' : ` from ${shareNameInput.value}`}`
+            url: `${location.origin}?word=${encodeURIComponent(shuffleWord(shareWord))}${providedName ? `&from=${encodeURIComponent(shareNameInput.value)}` : ''}`,
+            text: `Hangman challenge${providedName ? ` from ${shareNameInput.value}` : ''}`
         })
     })
+
+    openDrawer(shareDrawer);
 }
 
-function closeShareDrawer(e = null) {
+function openDrawer(drawer) {
+    drawer.classList.add("open");
+    initDrawerHandlers();
+}
+
+function initDrawerHandlers() {
+    setTimeout(() => {
+        document.body.addEventListener('click', closeAllDrawers);
+    }, 1);
+}
+
+function closeAllDrawers(e = null) {
     if (e) {
         e.stopPropagation();
 
-        if (e.target.closest("#share-drawer")) {
+        if (e.target.closest(".drawer")) {
             return;
         }
     }
 
-    shareDrawer.classList.remove("open");
-    document.body.removeEventListener('click', closeShareDrawer);
+    document.querySelectorAll(".drawer").forEach(drawer => {
+        drawer.classList.remove("open");
+    });
+
+    document.body.removeEventListener('click', closeAllDrawers);
 }
 
 function openBrowserShare(props) {
