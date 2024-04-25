@@ -1,6 +1,6 @@
 const alpha = "abcdefghijklmnopqrstuvwxyz";
 const MAX_WORD_LENGTH = 15;
-const RANDOM_URL = `https://random-word-api.herokuapp.com/word?lang=en&length=${Math.floor(Math.random() * 5) + (MAX_WORD_LENGTH - 5)}`;
+const RANDOM_URL = `https://random-word-api.herokuapp.com/word?lang=en&length=${Math.floor(Math.random() * (MAX_WORD_LENGTH - 5)) + 5}`;
 let word;
 let wordArray;
 let guessedLetters = [];
