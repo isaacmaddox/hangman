@@ -106,7 +106,7 @@ async function assignRandomWord() {
             } else {
                 randomWord = data[0];
                 spButton.disabled = false;
-                shareButton.disabled = false;
+                shareWordButton.disabled = false;
                 mpButton.disabled = false;
                 setWordInput.placeholder = randomWord;
             }
