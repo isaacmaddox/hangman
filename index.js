@@ -96,10 +96,10 @@ document.addEventListener("DOMContentLoaded", () => {
     fetch(RANDOM_URL)
         .then(r => r.json())
         .then(data => {
+            spButton.disabled = false;
             randomWord = data[0];
             setWordInput.placeholder = randomWord;
         }).catch(e => {
-            spButton.disabled = true;
             error("I can't think of random words right now.", "start");
         })
 });
