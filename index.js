@@ -98,6 +98,7 @@ document.addEventListener("DOMContentLoaded", () => {
         .then(data => {
             spButton.disabled = false;
             shareButton.disabled = false;
+            mpButton.disabled = false;
             randomWord = data[0];
             setWordInput.placeholder = randomWord;
         }).catch(e => {
