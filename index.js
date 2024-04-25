@@ -1,6 +1,7 @@
 const alpha = "abcdefghijklmnopqrstuvwxyz";
 const MAX_WORD_LENGTH = 15;
-const RANDOM_URL = `https://random-word-api.herokuapp.com/word?lang=en&length=${Math.floor(Math.random() * (MAX_WORD_LENGTH - 5)) + 5}`;
+// const RANDOM_URL = `https://random-word-api.herokuapp.com/word?lang=en&length=${Math.floor(Math.random() * (MAX_WORD_LENGTH - 5)) + 5}`;
+const RANDOM_URL = "https://random-word-form.herokuapp.com/random/noun";
 let word;
 let wordArray;
 let guessedLetters = [];
@@ -93,18 +94,26 @@ document.addEventListener("DOMContentLoaded", () => {
     }
     startingScreen.classList.add('open');
 
+    assignRandomWord();
+});
+
+async function assignRandomWord() {
     fetch(RANDOM_URL)
         .then(r => r.json())
         .then(data => {
-            spButton.disabled = false;
-            shareButton.disabled = false;
-            mpButton.disabled = false;
-            randomWord = data[0];
-            setWordInput.placeholder = randomWord;
+            if (data[0].length < 3 || data[0].length > MAX_WORD_LENGTH) {
+                return assignRandomWord();
+            } else {
+                randomWord = data[0];
+                spButton.disabled = false;
+                shareButton.disabled = false;
+                mpButton.disabled = false;
+                setWordInput.placeholder = randomWord;
+            }
         }).catch(e => {
             error("I can't think of random words right now.", "start");
         })
-});
+}
 
 function getQueryValue(param) {
     return location.search.substring(1)?.split("&").find(w => w.startsWith(param))?.split("=")[1] ?? null;
