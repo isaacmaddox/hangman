@@ -75,7 +75,7 @@ document.addEventListener("DOMContentLoaded", () => {
     })
 
     setWordInput.addEventListener('keyup', (e) => {
-        let dis = setWordInput.value.length > 0 && (setWordInput.value.length < 3 || setWordInput.value.length > MAX_WORD_LENGTH);
+        let dis = (setWordInput.value.length > 0 && (setWordInput.value.length < 3 || setWordInput.value.length > MAX_WORD_LENGTH)) || randomWord === undefined && setWordInput.value.length === 0;
         mpButton.disabled = dis;
         shareWordButton.disabled = dis;
     })
@@ -97,6 +97,7 @@ document.addEventListener("DOMContentLoaded", () => {
         .then(r => r.json())
         .then(data => {
             spButton.disabled = false;
+            shareButton.disabled = false;
             randomWord = data[0];
             setWordInput.placeholder = randomWord;
         }).catch(e => {
