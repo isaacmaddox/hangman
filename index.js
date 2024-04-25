@@ -98,7 +98,7 @@ document.addEventListener("DOMContentLoaded", () => {
         .then(data => {
             randomWord = data[0];
             setWordInput.placeholder = randomWord;
-        }).catch(error => {
+        }).catch(e => {
             spButton.disabled = true;
             error("I can't think of random words right now.", "start");
         })
