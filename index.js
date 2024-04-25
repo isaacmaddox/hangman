@@ -91,14 +91,17 @@ document.addEventListener("DOMContentLoaded", () => {
         word = sharedWord;
         return beginGame(true);
     }
+    startingScreen.classList.add('open');
 
     fetch(RANDOM_URL)
         .then(r => r.json())
         .then(data => {
             randomWord = data[0];
             setWordInput.placeholder = randomWord;
-            startingScreen.classList.add('open');
-        });
+        }).catch(error => {
+            spButton.disabled = true;
+            error("I can't think of random words right now.", "start");
+        })
 });
 
 function getQueryValue(param) {
