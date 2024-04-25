@@ -26,6 +26,10 @@ let shareNameInput;
 let shareButton;
 let shareResultsDrawer;
 let shareMistakesRemaining;
+let shareCompletedMessage;
+let settingsDrawer;
+let themeCheckbox;
+let motionCheckbox;
 let game_over = false;
 
 document.addEventListener("DOMContentLoaded", () => {
@@ -51,6 +55,10 @@ document.addEventListener("DOMContentLoaded", () => {
     shareButton = document.getElementById("share-button");
     shareResultsDrawer = document.getElementById("share-results-drawer");
     shareMistakesRemaining = document.getElementById("share-mistakes-remaining");
+    shareCompletedMessage = document.getElementById("share-results-completed-message");
+    settingsDrawer = document.getElementById("settings-drawer");
+    themeCheckbox = document.getElementById("theme-toggle");
+    motionCheckbox = document.getElementById("reduce-motion");
 
     setWordInput.setAttribute('maxlength', MAX_WORD_LENGTH);
 
@@ -81,10 +89,6 @@ document.addEventListener("DOMContentLoaded", () => {
         shareWordButton.disabled = dis;
     })
 
-    guessLetterInput.addEventListener('keyup', (e) => {
-        guessButton.disabled = guessLetterInput.value === "";
-    })
-
     if (location.search.includes("word")) {
         const sharedWord = unshuffleWord(decodeURIComponent(getQueryValue("word")));
         startingScreen.classList.add('open');
@@ -94,6 +98,13 @@ document.addEventListener("DOMContentLoaded", () => {
     }
     startingScreen.classList.add('open');
 
+    if (!getCookie("theme") && window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches) {
+        setCookie("theme", "dark");
+    } else if (!getCookie("theme")) {
+        setCookie("theme", "light");
+    }
+
+    setDefaultSettings();
     assignRandomWord();
 });
 
@@ -220,6 +231,13 @@ function shareResults() {
     });
 }
 
+function shareSite() {
+    openBrowserShare({
+        url: `${location.origin}`,
+        text: "Play Hangman!"
+    });
+}
+
 function openShareDrawer(finished = false) {
     const shareWord = finished ? word : (setWordInput.value === "" ? randomWord : setWordInput.value);
     shareWordHeading.textContent = shareWord;
@@ -236,17 +254,27 @@ function openShareDrawer(finished = false) {
 
 function openShareResultsDrawer() {
     const num_mistakes = 6 - mistakes_remaining;
-    const share_url = `${location.origin}?word=${encodeURIComponent(shuffleWord(word))}`;
-    shareMistakesRemaining.textContent = num_mistakes;
+    
+    if (num_mistakes < 6) {
+        shareMistakesRemaining.textContent = num_mistakes;
+    } else {
+        shareCompletedMessage.textContent = "You weren't able to get this one.";
+    }
+    
 
     openDrawer(shareResultsDrawer);
 }
 
+function openSettingsDrawer() {
+    openDrawer(settingsDrawer);
+}
+
 function openDrawer(drawer) {
-    document.querySelectorAll('.drawer').forEach(drawer => {
-        drawer.classList.remove('open');
+    document.querySelectorAll('.drawer').forEach(d => {
+        d.classList.remove('open');
     });
 
+    drawer.querySelector("button")?.focus();
     drawer.classList.add("open");
     initDrawerHandlers();
 }
@@ -389,4 +417,53 @@ function fitWordToScreen() {
         --currentFS;
         wordDisplayText.style.setProperty("--font-size", `${currentFS}px`);
     }
+}
+
+function updateTheme() {
+    setCookie("theme", !themeCheckbox.checked ? "light" : "dark");
+    document.body.classList.remove(themeCheckbox.checked ? "light" : "dark");
+    document.body.classList.add(!themeCheckbox.checked ? "light" : "dark");
+}
+
+function updateSetting(setting) {
+    switch (setting) {
+        case 0:
+            setCookie("theme", !themeCheckbox.checked ? "light" : "dark");
+            document.body.classList.remove(themeCheckbox.checked ? "light" : "dark");
+            document.body.classList.add(!themeCheckbox.checked ? "light" : "dark");
+            break;
+        case 1:
+            if (motionCheckbox.checked) {
+                setCookie("reduce-motion", true);
+                document.body.classList.add("reduce-motion");
+            } else {
+                removeCookie("reduce-motion");
+                document.body.classList.remove("reduce-motion");
+            }
+            break;
+    }
+}
+
+function setDefaultSettings() {
+    themeCheckbox.checked = getCookie("theme") === "dark";
+    motionCheckbox.checked = getCookie("reduce-motion") === "true";
+    document.body.classList.add(getCookie("theme"));
+
+    if (getCookie("reduce-motion")) {
+        document.body.classList.add("reduce-motion");
+    }
+}
+
+function setCookie(name, value) {
+    let d = new Date();
+    d.setTime(d.getTime() + (30 * 24 * 60 * 60 * 1000));
+    document.cookie = `${name}=${value};expires=${d};path=/`;
+}
+
+function getCookie(name) {
+    return document.cookie.split(";").find(s => s.trim().startsWith(name))?.split("=")[1] ?? null;
+}
+
+function removeCookie(name) {
+    document.cookie = `${name}=;expires=${new Date(0)};path=/`;
 }
