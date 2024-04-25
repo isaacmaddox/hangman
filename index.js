@@ -98,21 +98,20 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 
 async function assignRandomWord() {
-    fetch(RANDOM_URL)
-        .then(r => r.json())
-        .then(data => {
-            if (data[0].length < 3 || data[0].length > MAX_WORD_LENGTH) {
-                return assignRandomWord();
-            } else {
-                randomWord = data[0];
-                spButton.disabled = false;
-                shareWordButton.disabled = false;
-                mpButton.disabled = false;
-                setWordInput.placeholder = randomWord;
-            }
-        }).catch(e => {
-            error("I can't think of random words right now.", "start");
-        })
+    const word = await getRandomWord();
+
+    randomWord = word;
+    spButton.disabled = false;
+    shareWordButton.disabled = false;
+    mpButton.disabled = false;
+    setWordInput.placeholder = randomWord;
+}
+
+async function getRandomWord() {
+    const [word] = await (await fetch(RANDOM_URL)).json();
+
+    if (word.length < 3 || word.length > MAX_WORD_LENGTH) return getRandomWord();
+    else return word;
 }
 
 function getQueryValue(param) {
@@ -195,19 +194,15 @@ function beginGame(wordDefined = false) {
     }
 }
 
-function beginSingleplayerGame() {
+async function beginSingleplayerGame() {
     mpButton.disabled = true;
     spButton.disabled = true;
     spButton.textContent = "Thinking of a word...";
     shareWordButton.disabled = true;
 
-    fetch(RANDOM_URL)
-        .then(r => r.json())
-        .then(data => {
-            word = data[0];
-            clearError("start");
-            initGame();
-        })
+    word = await getRandomWord();
+    clearError("start");
+    initGame();
 }
 
 function initGame() {
