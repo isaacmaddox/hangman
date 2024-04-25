@@ -23,6 +23,8 @@ let shareDrawer;
 let shareWordHeading;
 let shareNameInput;
 let shareButton;
+let shareResultsDrawer;
+let shareMistakesRemaining;
 let game_over = false;
 
 document.addEventListener("DOMContentLoaded", () => {
@@ -46,6 +48,8 @@ document.addEventListener("DOMContentLoaded", () => {
     shareWordHeading = document.getElementById("share-word-heading");
     shareNameInput = document.getElementById("sharer-name");
     shareButton = document.getElementById("share-button");
+    shareResultsDrawer = document.getElementById("share-results-drawer");
+    shareMistakesRemaining = document.getElementById("share-mistakes-remaining");
 
     setWordInput.setAttribute('maxlength', MAX_WORD_LENGTH);
 
@@ -94,7 +98,7 @@ document.addEventListener("DOMContentLoaded", () => {
             randomWord = data[0];
             setWordInput.placeholder = randomWord;
             startingScreen.classList.add('open');
-        })
+        });
 });
 
 function getQueryValue(param) {
@@ -107,13 +111,15 @@ function shuffleWord(word) {
     let newString = `${off}-`;
 
     for (let i = 0; i < original.length; ++i) {
-        if (original.charAt(i) === " ") {
-            newString += "_" + (i < original.length - 1 ? "-" : "");
-        } else {
+        if (/[a-z]/.test(original.charAt(i))) {
             let pos = alpha.indexOf(original.charAt(i));
             let newPos = (pos + off);
-            newString += newPos + (i < original.length - 1 ? "-" : "");
+            newString += newPos;
+        } else {
+            newString += original.charAt(i);
         }
+
+        newString += (i < original.length - 1 ? "-" : "");
     }
 
     return newString;
@@ -125,8 +131,8 @@ function unshuffleWord(word) {
     let newString = "";
 
     for (let i = 1; i < data.length; ++i) {
-        if (data[i] === "_") {
-            newString += " ";
+        if (!(/[0-9]{2,3}/.test(data[i]))) {
+            newString += data[i];
         } else {
             let pos = parseInt(data[i]) - off;
             newString += alpha.charAt(pos);
@@ -191,17 +197,18 @@ function beginSingleplayerGame() {
 }
 
 function initGame() {
-    wordArray = [...word.replace(/[^ ]/g, "_")];
+    wordArray = [...word.replace(/[a-z]/g, "_")];
     startingScreen?.classList.remove("open");
     gameScreen?.classList.add("open");
 
     updateDisplay();
 }
 
-function shareWord() {
-    word = setWordInput.value == "" ? randomWord : setWordInput.value;
-
-    openShareDrawer();
+function shareResults() {
+    openBrowserShare({
+        url: `${location.origin}?word=${encodeURIComponent(shuffleWord(shareWord))}`,
+        text: `Hangman challenge. Completed with ${6 - mistakes_remaining} mistakes`
+    })
 }
 
 function openShareDrawer() {
@@ -209,17 +216,28 @@ function openShareDrawer() {
     shareWordHeading.textContent = shareWord;
 
     shareButton.addEventListener('click', () => {
-        const providedName = shareNameInput.value.trim() !== "";
         openBrowserShare({
-            url: `${location.origin}?word=${encodeURIComponent(shuffleWord(shareWord))}${providedName ? `&from=${encodeURIComponent(shareNameInput.value)}` : ''}`,
-            text: `Hangman challenge${providedName ? ` from ${shareNameInput.value}` : ''}`
+            url: `${location.origin}?word=${encodeURIComponent(shuffleWord(shareWord))}`,
+            text: `Hangman challenge`
         })
     })
 
     openDrawer(shareDrawer);
 }
 
+function openShareResultsDrawer() {
+    const num_mistakes = 6 - mistakes_remaining;
+    const share_url = `${location.origin}?word=${encodeURIComponent(shuffleWord(word))}`;
+    shareMistakesRemaining.textContent = num_mistakes;
+
+    openDrawer(shareResultsDrawer);
+}
+
 function openDrawer(drawer) {
+    document.querySelectorAll('.drawer').forEach(drawer => {
+        drawer.classList.remove('open');
+    });
+
     drawer.classList.add("open");
     initDrawerHandlers();
 }
@@ -340,6 +358,7 @@ function endGame(win) {
     guessLetterInput.blur();
 
     gameScreen.classList.remove('open');
+    startingScreen.classList.remove('open');
     gameOverScreen.classList.add('open');
 }
 
