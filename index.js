@@ -34,6 +34,7 @@ let motionCheckbox;
 let numAttemptsInput;
 let maxLengthInput;
 let numAttemptsText, numAttemptsSetting;
+let shareAttempts;
 let game_over = true;
 
 document.addEventListener("DOMContentLoaded", () => {
@@ -67,6 +68,7 @@ document.addEventListener("DOMContentLoaded", () => {
     maxLengthInput = document.getElementById("max-length");
     numAttemptsText = document.getElementById("num-attempts-message");
     numAttemptsSetting = document.getElementById("num-attempts-setting");
+    shareAttempts = document.getElementById("share-attempts");
 
     setWordInput.setAttribute('maxlength', MAX_WORD_LENGTH);
 
@@ -110,6 +112,10 @@ document.addEventListener("DOMContentLoaded", () => {
         startingScreen.classList.add('open');
 
         word = sharedWord;
+        if (getQueryValue("attempts")) {
+            num_attempts = parseInt(getQueryValue("attempts"));
+            mistakes_remaining = num_attempts;
+        }
         return beginGame(true);
     }
     startingScreen.classList.add('open');
@@ -254,7 +260,7 @@ function openShareDrawer(finished = false) {
 
     shareButton.addEventListener('click', () => {
         openBrowserShare({
-            url: `${location.origin}?word=${encodeURIComponent(shuffleWord(shareWord))}`,
+            url: `${location.origin}?word=${encodeURIComponent(shuffleWord(shareWord))}${shareAttempts.value.trim() !== "" ? `&attempts=${parseInt(shareAttempts.value)}` : ""}`,
             text: `Hangman challenge`
         })
     })
