@@ -1,11 +1,12 @@
 const alpha = "abcdefghijklmnopqrstuvwxyz";
-const MAX_WORD_LENGTH = 15;
+let MAX_WORD_LENGTH = 15;
 // const RANDOM_URL = `https://random-word-api.herokuapp.com/word?lang=en&length=${Math.floor(Math.random() * (MAX_WORD_LENGTH - 5)) + 5}`;
 const RANDOM_URL = "https://random-word-form.herokuapp.com/random/noun";
 let word;
 let wordArray;
 let guessedLetters = [];
 let mistakes_remaining = 6;
+let num_attempts;
 let setWordInput;
 let guessLetterInput;
 let mistakeCountText;
@@ -30,7 +31,10 @@ let shareCompletedMessage;
 let settingsDrawer;
 let themeCheckbox;
 let motionCheckbox;
-let game_over = false;
+let numAttemptsInput;
+let maxLengthInput;
+let numAttemptsText, numAttemptsSetting;
+let game_over = true;
 
 document.addEventListener("DOMContentLoaded", () => {
     setWordInput = document.getElementById("set-word");
@@ -59,8 +63,20 @@ document.addEventListener("DOMContentLoaded", () => {
     settingsDrawer = document.getElementById("settings-drawer");
     themeCheckbox = document.getElementById("theme-toggle");
     motionCheckbox = document.getElementById("reduce-motion");
+    numAttemptsInput = document.getElementById("num-tries");
+    maxLengthInput = document.getElementById("max-length");
+    numAttemptsText = document.getElementById("num-attempts-message");
+    numAttemptsSetting = document.getElementById("num-attempts-setting");
 
     setWordInput.setAttribute('maxlength', MAX_WORD_LENGTH);
+
+    if (!getCookie("theme") && window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches) {
+        setCookie("theme", "dark");
+    } else if (!getCookie("theme")) {
+        setCookie("theme", "light");
+    }
+
+    setDefaultSettings();
 
     [setWordInput, guessLetterInput].forEach(field => {
         field.addEventListener("keydown", (e) => {
@@ -98,13 +114,6 @@ document.addEventListener("DOMContentLoaded", () => {
     }
     startingScreen.classList.add('open');
 
-    if (!getCookie("theme") && window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches) {
-        setCookie("theme", "dark");
-    } else if (!getCookie("theme")) {
-        setCookie("theme", "light");
-    }
-
-    setDefaultSettings();
     assignRandomWord();
 });
 
@@ -217,6 +226,7 @@ async function beginSingleplayerGame() {
 }
 
 function initGame() {
+    game_over = false;
     wordArray = [...word.replace(/[a-z]/g, "_")];
     startingScreen?.classList.remove("open");
     gameScreen?.classList.add("open");
@@ -227,7 +237,7 @@ function initGame() {
 function shareResults() {
     openBrowserShare({
         url: `${location.origin}?word=${encodeURIComponent(shuffleWord(word))}`,
-        text: `Hangman challenge. Completed with ${6 - mistakes_remaining} mistakes`
+        text: `Hangman challenge. Completed with ${num_attempts - mistakes_remaining} mistakes`
     });
 }
 
@@ -253,19 +263,20 @@ function openShareDrawer(finished = false) {
 }
 
 function openShareResultsDrawer() {
-    const num_mistakes = 6 - mistakes_remaining;
-    
-    if (num_mistakes < 6) {
+    const num_mistakes = num_attempts - mistakes_remaining;
+
+    if (num_mistakes < num_attempts) {
         shareMistakesRemaining.textContent = num_mistakes;
     } else {
         shareCompletedMessage.textContent = "You weren't able to get this one.";
     }
-    
+
 
     openDrawer(shareResultsDrawer);
 }
 
 function openSettingsDrawer() {
+    controlNumAttemptsSetting();
     openDrawer(settingsDrawer);
 }
 
@@ -274,7 +285,6 @@ function openDrawer(drawer) {
         d.classList.remove('open');
     });
 
-    drawer.querySelector("button")?.focus();
     drawer.classList.add("open");
     initDrawerHandlers();
 }
@@ -282,7 +292,14 @@ function openDrawer(drawer) {
 function initDrawerHandlers() {
     setTimeout(() => {
         document.body.addEventListener('click', closeAllDrawers);
+        document.body.addEventListener('keydown', closeOnEscape)
     }, 1);
+}
+
+function closeOnEscape(e) {
+    if (e.key === "Escape") {
+        closeAllDrawers();
+    }
 }
 
 function closeAllDrawers(e = null) {
@@ -299,6 +316,7 @@ function closeAllDrawers(e = null) {
     });
 
     document.body.removeEventListener('click', closeAllDrawers);
+    document.body.removeEventListener('keydown', closeOnEscape);
 }
 
 function openBrowserShare(props) {
@@ -425,22 +443,43 @@ function updateTheme() {
     document.body.classList.add(!themeCheckbox.checked ? "light" : "dark");
 }
 
-function updateSetting(setting) {
-    switch (setting) {
-        case 0:
-            setCookie("theme", !themeCheckbox.checked ? "light" : "dark");
-            document.body.classList.remove(themeCheckbox.checked ? "light" : "dark");
-            document.body.classList.add(!themeCheckbox.checked ? "light" : "dark");
-            break;
-        case 1:
-            if (motionCheckbox.checked) {
-                setCookie("reduce-motion", true);
-                document.body.classList.add("reduce-motion");
-            } else {
-                removeCookie("reduce-motion");
-                document.body.classList.remove("reduce-motion");
-            }
-            break;
+function updateSettings() {
+    // Set theme
+    setCookie("theme", !themeCheckbox.checked ? "light" : "dark");
+    document.body.classList.remove(themeCheckbox.checked ? "light" : "dark");
+    document.body.classList.add(!themeCheckbox.checked ? "light" : "dark");
+
+    // Set reduced motion
+    if (motionCheckbox.checked) {
+        setCookie("reduce-motion", true);
+        document.body.classList.add("reduce-motion");
+    } else {
+        removeCookie("reduce-motion");
+        document.body.classList.remove("reduce-motion");
+    }
+
+    // Set number of attempts
+    if (numAttemptsInput.value !== "" && numAttemptsInput.value != mistakes_remaining && game_over) {
+        setCookie("num-attempts", parseInt(numAttemptsInput.value));
+        mistakes_remaining = parseInt(numAttemptsInput.value);
+        num_attempts = numAttemptsInput.value;
+    } else if (numAttemptsInput.value === "" && game_over) {
+        removeCookie("num-attempts");
+        num_attempts = 6;
+        mistakes_remaining = num_attempts;
+    }
+
+    // Set max word length
+    if (maxLengthInput.value !== "" && maxLengthInput.value != MAX_WORD_LENGTH) {
+        setCookie("max-length", parseInt(maxLengthInput.value));
+        MAX_WORD_LENGTH = parseInt(maxLengthInput.value);
+        setWordInput.setAttribute("maxlength", MAX_WORD_LENGTH);
+        assignRandomWord();
+    } else if (maxLengthInput.value === "" && MAX_WORD_LENGTH !== 15) {
+        MAX_WORD_LENGTH = 15;
+        setWordInput.setAttribute("maxlength", MAX_WORD_LENGTH);
+        removeCookie("max-length");
+        assignRandomWord();
     }
 }
 
@@ -452,6 +491,14 @@ function setDefaultSettings() {
     if (getCookie("reduce-motion")) {
         document.body.classList.add("reduce-motion");
     }
+
+    numAttemptsInput.value = getCookie("num-attempts") ?? "";
+    num_attempts = parseInt(getCookie("num-attempts") ?? 6);
+    mistakes_remaining = num_attempts;
+
+    maxLengthInput.value = getCookie("max-length") ?? "";
+    MAX_WORD_LENGTH = parseInt(getCookie("max-length") ?? 15);
+    setWordInput.setAttribute("maxlength", MAX_WORD_LENGTH);
 }
 
 function setCookie(name, value) {
@@ -466,4 +513,26 @@ function getCookie(name) {
 
 function removeCookie(name) {
     document.cookie = `${name}=;expires=${new Date(0)};path=/`;
+}
+
+function exitWithoutSaving() {
+    closeAllDrawers();
+    setDefaultSettings();
+}
+
+function closeAndSave() {
+    closeAllDrawers();
+    updateSettings();
+}
+
+function controlNumAttemptsSetting() {
+    if (game_over) {
+        numAttemptsText.textContent = "Customize the number of attempts";
+        numAttemptsInput.disabled = false;
+        numAttemptsSetting.classList.remove("disabled");
+    } else {
+        numAttemptsText.textContent = "You can't edit this setting during a game";
+        numAttemptsInput.disabled = true;
+        numAttemptsSetting.classList.add("disabled");
+    }
 }

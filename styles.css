@@ -3,7 +3,8 @@
     src: url(GeistVF.ttf);
 }
 
-:root, .light {
+:root,
+.light {
     --background: #fff;
     --background-inverse: #111;
     --surface: #f7f7f7;
@@ -116,8 +117,8 @@ body {
     }
 
     &.reduce-motion * {
-        transition-duration: 0ms!important;
-        animation-duration: 0ms!important;
+        transition-duration: 0ms !important;
+        animation-duration: 0ms !important;
     }
 }
 
@@ -165,6 +166,12 @@ h1,
     &+input {
         margin-top: 1em;
     }
+}
+
+.text-sm {
+    font-size: .875rem;
+    line-height: 1.4;
+    font-weight: 400;
 }
 
 p {
@@ -276,8 +283,13 @@ button {
     }
 
     & svg {
-        [fill] { fill: currentColor }
-        [stroke] { stroke: currentColor }
+        [fill] {
+            fill: currentColor
+        }
+
+        [stroke] {
+            stroke: currentColor
+        }
     }
 }
 
@@ -431,6 +443,19 @@ button {
     pointer-events: none;
     transition: transform 500ms cubic-bezier(0.19, 1, 0.22, 1);
     outline: 1px solid var(--control-border-color);
+    max-height: min(100dvh, 600px);
+    overflow: auto;
+
+    &::-webkit-scrollbar {
+        width: 15px;
+        background: transparent;
+    }
+
+    &::-webkit-scrollbar-thumb {
+        background: var(--text-dim-color);
+        border: 5px solid var(--surface);
+        border-radius: 100vw;
+    }
 
     &.open {
         transform: translateY(0);
@@ -470,7 +495,7 @@ button {
     &:hover {
         background: var(--surface-raised);
     }
-    
+
     & span {
         display: flex;
         flex-direction: column;
@@ -479,7 +504,6 @@ button {
         & p {
             font-weight: 600;
             color: var(--heading-color);
-            font-size: 1.125rem;
         }
 
         & small {
@@ -552,6 +576,37 @@ button {
         & input[type="checkbox"] {
             display: none;
         }
+    }
+}
+
+.setting-value {
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    align-items: center;
+    padding: 1rem 0;
+
+    &.disabled {
+        opacity: .5;
+        cursor: not-allowed;
+    }
+
+    & span {
+        display: flex;
+        flex-direction: column;
+        gap: .125em;
+
+        & p {
+            font-weight: 600;
+            color: var(--heading-color);
+        }
+
+        & small {
+            color: var(--text-tooltip-color);
+        }
+    }
+
+    & input {
+        padding: .5rem 1rem;
     }
 }
 
