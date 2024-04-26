@@ -394,12 +394,10 @@ function guess(letter = null) {
     }
 
     if (!wordArray.includes("_")) {
-        game_over = true;
         endGame(true);
     }
 
     if (mistakes_remaining === 0) {
-        game_over = true;
         return endGame(false);
     }
 
@@ -408,6 +406,7 @@ function guess(letter = null) {
 }
 
 function endGame(win) {
+    game_over = true;
     gameOverTitle.textContent = win ? "Congratulations!" : "Game Over!";
     revealWordText.textContent = word;
     guessLetterInput.blur();
