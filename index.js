@@ -37,38 +37,42 @@ let numAttemptsText, numAttemptsSetting;
 let shareAttempts;
 let game_over = true;
 
+function $(selector) {
+    return document.querySelector(selector);
+}
+
 document.addEventListener("DOMContentLoaded", () => {
-    setWordInput = document.getElementById("set-word");
-    guessLetterInput = document.getElementById("guess-letter");
-    mistakeCountText = document.getElementById("mistakes-remaining");
-    startingScreen = document.getElementById("starting-screen");
-    gameScreen = document.getElementById("game-screen");
-    gameOverScreen = document.getElementById("game-over-screen");
-    wordDisplayText = document.getElementById("word-display");
-    letterDisplay = document.getElementById("letter-display");
-    setupErrorText = document.getElementById("start-error");
-    gameErrorText = document.getElementById("game-error");
-    revealWordText = document.getElementById("reveal-word");
-    gameOverTitle = document.getElementById("game-over-title");
-    mpButton = document.getElementById("play-multiplayer");
-    spButton = document.getElementById("play-singleplayer");
-    guessButton = document.getElementById("guess-button");
-    shareWordButton = document.getElementById("share-word");
-    shareDrawer = document.getElementById("share-drawer");
-    shareWordHeading = document.getElementById("share-word-heading");
-    shareNameInput = document.getElementById("sharer-name");
-    shareButton = document.getElementById("share-button");
-    shareResultsDrawer = document.getElementById("share-results-drawer");
-    shareMistakesRemaining = document.getElementById("share-mistakes-remaining");
-    shareCompletedMessage = document.getElementById("share-results-completed-message");
-    settingsDrawer = document.getElementById("settings-drawer");
-    themeCheckbox = document.getElementById("theme-toggle");
-    motionCheckbox = document.getElementById("reduce-motion");
-    numAttemptsInput = document.getElementById("num-tries");
-    maxLengthInput = document.getElementById("max-length");
-    numAttemptsText = document.getElementById("num-attempts-message");
-    numAttemptsSetting = document.getElementById("num-attempts-setting");
-    shareAttempts = document.getElementById("share-attempts");
+    setWordInput = $("#set-word");
+    guessLetterInput = $("#guess-letter");
+    mistakeCountText = $("#mistakes-remaining");
+    startingScreen = $("#starting-screen");
+    gameScreen = $("#game-screen");
+    gameOverScreen = $("#game-over-screen");
+    wordDisplayText = $("#word-display");
+    letterDisplay = $("#letter-display");
+    setupErrorText = $("#start-error");
+    gameErrorText = $("#game-error");
+    revealWordText = $("#reveal-word");
+    gameOverTitle = $("#game-over-title");
+    mpButton = $("#play-multiplayer");
+    spButton = $("#play-singleplayer");
+    guessButton = $("#guess-button");
+    shareWordButton = $("#share-word");
+    shareDrawer = $("#share-drawer");
+    shareWordHeading = $("#share-word-heading");
+    shareNameInput = $("#sharer-name");
+    shareButton = $("#share-button");
+    shareResultsDrawer = $("#share-results-drawer");
+    shareMistakesRemaining = $("#share-mistakes-remaining");
+    shareCompletedMessage = $("#share-results-completed-message");
+    settingsDrawer = $("#settings-drawer");
+    themeCheckbox = $("#theme-toggle");
+    motionCheckbox = $("#reduce-motion");
+    numAttemptsInput = $("#num-tries");
+    maxLengthInput = $("#max-length");
+    numAttemptsText = $("#num-attempts-message");
+    numAttemptsSetting = $("#num-attempts-setting");
+    shareAttempts = $("#share-attempts");
 
     setWordInput.setAttribute('maxlength', MAX_WORD_LENGTH);
 
@@ -83,7 +87,7 @@ document.addEventListener("DOMContentLoaded", () => {
     [setWordInput, guessLetterInput].forEach(field => {
         field.addEventListener("keydown", (e) => {
             if (e.key === "Enter") {
-                document.getElementById(field.dataset.target)?.click();
+                $(`#${field.dataset.target}`)?.click();
             }
         })
     })
