@@ -436,7 +436,6 @@ function reloadPage() {
 }
 
 function fitWordToScreen() {
-    let iters = 0;
     const wordDisplayWidth = wordDisplayText.getBoundingClientRect().width;
     let currentFS = parseInt(getComputedStyle(wordDisplayText).getPropertyValue("--font-size"));
 
