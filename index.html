@@ -74,14 +74,6 @@
       <div class="drawer-heading"></div>
       <h2 class="text-heading" id="share-word-heading">Atrocious</h2>
       <p>You are sharing this puzzle</p>
-      <div class="divider">Settings</div>
-      <label for="share-attempts" class="setting-value">
-        <span>
-          <p>Number of Attempts</p>
-          <small>Set the number of attempts that your receipient will receive</small>
-        </span>
-        <input type="text" name="share-attempts" id="share-attempts" placeholder="6" />
-      </label>
       <div class="divider">Options</div>
       <div class="control-group one-col">
         <button type="button" class="primary" id="share-button">Share Puzzle</button>
@@ -98,13 +90,13 @@
         <button type="button" onclick="openShareDrawer(true)">Share Puzzle Only</button>
       </div>
     </div>
-    <div id="start-screen" class="screen">
+    <div id="starting-screen" class="screen">
       <h1>Hangman</h1>
       <p class="text-lg">The ultimate word guessing game for all ages!</p>
       <p class="tooltip">Player 1, enter the word for Player 2 to guess:</p>
-      <input type="text" id="set-word" data-target="play-multiplayer" autocomplete="off" />
+      <input type="text" id="set-word" maxlength="10" data-target="play-multiplayer" autocomplete="off" />
       <div class="control-group no-break">
-        <button type="button" class="primary" id="play-multiplayer" disabled>Play Game</button>
+        <button type="button" class="primary" onclick="beginGame()" id="play-multiplayer" disabled>Play Game</button>
         <button type="button" onclick="openShareDrawer()" id="share-word" disabled>Share</button>
       </div>
       <p class="error-text" id="start-error"></p>
@@ -117,7 +109,7 @@
       <p class="tooltip">Guess a letter or the entire word</p>
       <div class="control-group one-col" id="game-controls">
         <input type="text" id="guess-letter" placeholder="Enter guess here" data-target="guess-button" autocomplete="off" />
-        <button type="button" id="guess-button" class="primary">Submit Guess</button>
+        <button type="button" onclick="guess()" id="guess-button" class="primary">Submit Guess</button>
       </div>
       <p class="error-text" id="game-error"></p>
       <p id="letter-display">
