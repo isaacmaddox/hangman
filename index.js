@@ -356,7 +356,7 @@ function updateDisplay(correctGuess = false) {
 }
 
 function guess(letter = null) {
-    const userGuess = letter ?? guessLetterInput.value.toLowerCase();
+    const userGuess = letter ?? guessLetterInput.value.toLowerCase().trim();
     let letterFound = false;
 
     if (game_over) return;
